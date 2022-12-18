@@ -34,7 +34,7 @@ func main() {
 	allowHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
 
 	router := mux.NewRouter()
-	router.HandleFunc("/api/v1/current_trip_assignment/passanger/{id}", currentAssignmentPassanger).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/current_trip_assignment/passenger/{id}", currentAssignmentPassenger).Methods(http.MethodGet)
 
 	router.HandleFunc("/api/v1/current_trip_assignment/driver/{id}", currentAssignmentDriver).Methods(http.MethodGet)
 
@@ -49,12 +49,12 @@ func main() {
 
 func trip(w http.ResponseWriter, r *http.Request) {
 	querystringmap := r.URL.Query()
-	passangerId := querystringmap["passanger_id"]
+	passengerId := querystringmap["passenger_id"]
 
 	switch r.Method {
 	case http.MethodGet:
-		if len(passangerId) >= 1 {
-			tList, err := getTripFilterPassangerId(passangerId[0])
+		if len(passengerId) >= 1 {
+			tList, err := getTripFilterPassengerId(passengerId[0])
 			if err == nil {
 				w.WriteHeader(http.StatusAccepted)
 				out, _ := json.Marshal(tList)
@@ -141,7 +141,7 @@ func filterTrip(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func currentAssignmentPassanger(w http.ResponseWriter, r *http.Request) {
+func currentAssignmentPassenger(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	if _, ok := params["id"]; !ok {
 		w.WriteHeader(http.StatusBadRequest)
@@ -151,7 +151,7 @@ func currentAssignmentPassanger(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		tList, err := getCurrentTripAssignmentFilterPassangerId(id)
+		tList, err := getCurrentTripAssignmentFilterPassengerId(id)
 		if err == nil {
 			w.WriteHeader(http.StatusAccepted)
 			out, _ := json.Marshal(tList)
