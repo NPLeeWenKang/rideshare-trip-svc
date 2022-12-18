@@ -29,6 +29,7 @@ func main() {
 	db, _ = sql.Open("mysql", cfg.FormatDSN())
 	defer db.Close()
 
+	// Settles the CORS errors
 	allowOrigins := handlers.AllowedOrigins([]string{"*"})
 	allowMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"})
 	allowHeaders := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type"})
@@ -151,7 +152,7 @@ func currentAssignmentPassenger(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		tList, err := getCurrentTripAssignmentFilterPassengerId(id)
+		tList, err := getCurrentTripAssignmentFilterPassengerId(id) // Gets the "in-progress" trip assignments for the passangers
 		if err == nil {
 			w.WriteHeader(http.StatusAccepted)
 			out, _ := json.Marshal(tList)
@@ -178,7 +179,7 @@ func currentAssignmentDriver(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		tList, err := getCurrentTripAssignmentFilterDriverId(id)
+		tList, err := getCurrentTripAssignmentFilterDriverId(id) // Gets the "in-progress" trip assignments for the drivers
 		if err == nil {
 			w.WriteHeader(http.StatusAccepted)
 			out, _ := json.Marshal(tList)
@@ -203,6 +204,11 @@ func tripAssignment(w http.ResponseWriter, r *http.Request) {
 		if byteBody, ok := ioutil.ReadAll(r.Body); ok == nil {
 			if ok := json.Unmarshal(byteBody, &ta); ok == nil {
 				var err error
+
+				// Based on the updated trip status object, perform different types of updates.
+				// 1. ACCEPTED or REJECTED will simply update the trip_assignment table
+				// 2. DRIVING will update the trip_assignment table and will update the start time on the trip table
+				// 3. DONE will update the trip_assignment table and will update the end time on the trip table
 				if ta.Status == "ACCEPTED" || ta.Status == "REJECTED" {
 					err = updateTripAssignment(ta)
 				} else if ta.Status == "DRIVING" {

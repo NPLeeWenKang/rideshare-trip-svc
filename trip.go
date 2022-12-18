@@ -68,6 +68,7 @@ func getTripFilterPassengerId(passengerId string) ([]Trip_Filter_Passenger, erro
 	var rows *sql.Rows
 	var err error
 
+	// Queries both trip and trip_assignment to get the latest trip assignment for the trip.
 	rows, err = db.Query("WITH latest_assignment AS ( SELECT ta1.* FROM trip_assignment ta1 LEFT JOIN trip_assignment ta2 ON ta1.trip_id = ta2.trip_id AND ta1.assign_datetime < ta2.assign_datetime WHERE ta2.trip_id is NULL ), latest_trip AS ( SELECT t.trip_id, la.status FROM trip t LEFT JOIN latest_assignment la ON t.trip_id = la.trip_id ) SELECT t.*, lt.status FROM passenger p INNER JOIN trip t ON p.passenger_id = t.passenger_id INNER JOIN latest_trip lt ON t.trip_id = lt.trip_id WHERE p.passenger_id = ? ORDER BY t.trip_id DESC", passengerId)
 
 	if err != nil {
